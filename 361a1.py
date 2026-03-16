@@ -57,3 +57,78 @@ def information_gain(parent, left, right):
     )
 
     return parent_entropy - weighted_entropy
+
+
+# Search for best feature and threshold to split on
+def best_split(X, y):
+    best_gain = 0
+    best_feature = None
+    best_threshold = None
+
+    for feature in X.columns:
+        thresholds = X[feature].unique()
+
+        for threshold in thresholds:
+
+            left_mask = X[feature] <= threshold
+            right_mask = X[feature] > threshold
+
+            if sum(left_mask) == 0 or sum(right_mask) == 0:
+                continue
+
+            gain = information_gain(
+                y, y[left_mask], y[right_mask]
+            )
+
+            if gain > best_gain:
+                best_gain = gain
+                best_feature = feature
+                best_threshold = threshold
+
+        return best_feature, best_threshold
+
+
+def train_tree(X, y, depth=0, stopping_depth=None):
+
+    # Stopping condition
+    if len(np.unique(y)) == 1:
+        return Node(value=y.iloc[0])
+    
+    if stopping_depth is not None and depth >= stopping_depth:
+        return Node(value=y.mode()[0])
+    
+    feature, threshold = best_split(X, y)
+
+    if feature is None:
+        return Node(value=y.mode()[0])
+
+    left_mask = X[feature] <= threshold
+    right_mask = X[feature] > threshold
+
+    left_child = train_tree(
+        X[left_mask], y[left_mask], depth+1, stopping_depth
+    )
+
+    right_child = train_tree(
+        X[right_mask], y[right_mask], depth+1, stopping_depth
+    )
+
+    return Node(feature, threshold, left_child, right_child)
+
+
+tree = train_tree(x_train, y_train)
+
+# Depth control 
+# Discuss these trees in the report
+tree2 = train_tree(x_train, y_train, stopping_depth=2)
+tree3 = train_tree(x_train, y_train, stopping_depth=3)
+tree4 = train_tree(x_train, y_train, stopping_depth=4)
+
+class Node:
+
+    def __init__(self, feature=None, threshold=None, left=None, right=None, value=None):
+        self.feature = feature
+        self.threshold = threshold
+        self.left = left
+        self.right = right
+        self.value = value
