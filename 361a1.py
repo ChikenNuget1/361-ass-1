@@ -5,6 +5,17 @@
 import pandas as pd
 import numpy as np
 
+
+class Node:
+
+    def __init__(self, feature=None, threshold=None, left=None, right=None, value=None):
+        self.feature = feature
+        self.threshold = threshold
+        self.left = left
+        self.right = right
+        self.value = value
+
+
 # Set a random seed to make the experiment reproducible
 np.random.seed(44)
 
@@ -85,7 +96,7 @@ def best_split(X, y):
                 best_feature = feature
                 best_threshold = threshold
 
-        return best_feature, best_threshold
+    return best_feature, best_threshold
 
 
 def train_tree(X, y, depth=0, stopping_depth=None):
@@ -124,11 +135,28 @@ tree2 = train_tree(x_train, y_train, stopping_depth=2)
 tree3 = train_tree(x_train, y_train, stopping_depth=3)
 tree4 = train_tree(x_train, y_train, stopping_depth=4)
 
-class Node:
 
-    def __init__(self, feature=None, threshold=None, left=None, right=None, value=None):
-        self.feature = feature
-        self.threshold = threshold
-        self.left = left
-        self.right = right
-        self.value = value
+def predict_sample(node, sample):
+    if node.value is not None:
+        return node.value
+    
+    if sample[node.feature] <= node.threshold:
+        return predict_sample(node.left, sample)
+    else:
+        return predict_sample(node.right, sample)
+    
+
+def predict(tree, X):
+    predictions = []
+
+    for _, row in X.iterrows():
+        predictions.append(predict_sample(tree, row))
+
+    return np.array(predictions)
+
+
+predictions=predict(tree, x_test)
+
+accuracy = np.mean(predictions == y_test)
+
+print("accuracy: ", accuracy)
