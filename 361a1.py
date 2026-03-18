@@ -116,6 +116,10 @@ def train_tree(X, y, depth=0, stopping_depth=None):
     left_mask = X[feature] <= threshold
     right_mask = X[feature] > threshold
 
+    # A check to prevent infinite recursion
+    if left_mask.sum() == 0 or right_mask.sum() == 0:
+        return Node(value=y.mode()[0])
+
     left_child = train_tree(
         X[left_mask], y[left_mask], depth+1, stopping_depth
     )
