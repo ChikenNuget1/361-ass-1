@@ -166,30 +166,51 @@ def predict(tree, X):
 # ====================================================
 predictions=predict(tree, x_test)
 
-# Confusion Matrix
-TP = np.sum((predictions == 1) & (y_test == 1))
-TN = np.sum((predictions == 0) & (y_test == 0))
-FP = np.sum((predictions == 1) & (y_test == 0))
-FN = np.sum((predictions == 0) & (y_test == 1))
 
-# Accuracy, Precision, and Recall values
-accuracy = (TP + TN) / (TP + TN + FP + FN)
+def evaluate_model(predictions):
+    # Confusion Matrix
+    TP = np.sum((predictions == 1) & (y_test == 1))
+    TN = np.sum((predictions == 0) & (y_test == 0))
+    FP = np.sum((predictions == 1) & (y_test == 0))
+    FN = np.sum((predictions == 0) & (y_test == 1))
 
-precision = TP / (TP + FP) if (TP + FP) != 0 else 0
+    # Accuracy, Precision, and Recall values
+    accuracy = (TP + TN) / (TP + TN + FP + FN)
 
-recall = TP / (TP + FN) if (TP + FN) != 0 else 0
+    precision = TP / (TP + FP) if (TP + FP) != 0 else 0
 
-# F-measure
-f1 = (2 * precision * recall) / (precision + recall) if (precision + recall) != 0 else 0
+    recall = TP / (TP + FN) if (TP + FN) != 0 else 0
 
-# Print results
+    # F-measure
+    f1 = (2 * precision * recall) / (precision + recall) if (precision + recall) != 0 else 0
 
-print("Confusion Matrix:")
-print("TP:", TP, "FP:", FP)
-print("FN:", FN, "TN:", TN)
+    # Print results
 
-print("\nMetrics:")
-print("Accuracy:", round(accuracy, 4))
-print("Precision:", round(precision, 4))
-print("Recall:", round(recall, 4))
-print("F1 Score:", round(f1, 4))
+    print("Confusion Matrix:")
+    print("TP:", TP, "FP:", FP)
+    print("FN:", FN, "TN:", TN)
+
+    print("\nMetrics:")
+    print("Accuracy:", round(accuracy, 4))
+    print("Precision:", round(precision, 4))
+    print("Recall:", round(recall, 4))
+    print("F1 Score:", round(f1, 4))
+
+
+
+def print_tree(node, depth=0):
+
+    indent = "  " * depth
+
+    if node.value is not None:
+        print(indent + f"Predict: {node.value}")
+        return
+
+    print(indent + f"If {node.feature} <= {node.threshold}:")
+
+    print_tree(node.left, depth + 1)
+
+    print(indent + f"Else ({node.feature} > {node.threshold}):")
+
+    print_tree(node.right, depth + 1)
+
