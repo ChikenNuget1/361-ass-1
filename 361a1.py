@@ -135,9 +135,9 @@ tree = train_tree(x_train, y_train)
 
 # Depth control 
 # Discuss these trees in the report
-tree2 = train_tree(x_train, y_train, stopping_depth=2)
-tree3 = train_tree(x_train, y_train, stopping_depth=3)
-tree4 = train_tree(x_train, y_train, stopping_depth=4)
+# tree2 = train_tree(x_train, y_train, stopping_depth=2)
+# tree3 = train_tree(x_train, y_train, stopping_depth=3)
+# tree4 = train_tree(x_train, y_train, stopping_depth=4)
 
 
 def predict_sample(node, sample):
@@ -159,8 +159,37 @@ def predict(tree, X):
     return np.array(predictions)
 
 
+# Final Results
+# This section will print out a confusion matrix and 
+# Accuracy, Precision, and Recall values, then using those values,
+# it will then get the F-measure
+# ====================================================
 predictions=predict(tree, x_test)
 
-accuracy = np.mean(predictions == y_test)
+# Confusion Matrix
+TP = np.sum((predictions == 1) & (y_test == 1))
+TN = np.sum((predictions == 0) & (y_test == 0))
+FP = np.sum((predictions == 1) & (y_test == 0))
+FN = np.sum((predictions == 0) & (y_test == 1))
 
-print("accuracy: ", accuracy)
+# Accuracy, Precision, and Recall values
+accuracy = (TP + TN) / (TP + TN + FP + FN)
+
+precision = TP / (TP + FP) if (TP + FP) != 0 else 0
+
+recall = TP / (TP + FN) if (TP + FN) != 0 else 0
+
+# F-measure
+f1 = (2 * precision * recall) / (precision + recall) if (precision + recall) != 0 else 0
+
+# Print results
+
+print("Confusion Matrix:")
+print("TP:", TP, "FP:", FP)
+print("FN:", FN, "TN:", TN)
+
+print("\nMetrics:")
+print("Accuracy:", round(accuracy, 4))
+print("Precision:", round(precision, 4))
+print("Recall:", round(recall, 4))
+print("F1 Score:", round(f1, 4))
